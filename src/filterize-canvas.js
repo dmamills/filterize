@@ -1,29 +1,39 @@
+class Pixel {
+    
+    constructor(r,g,b,a) {
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+    }
+
+    toData() {
+        return [
+            this.r,
+            this.g,
+            this.b,
+            this.a,
+        ];
+    }
+
+    toHex() {
+        let n = (this.r << 16) + (this.g << 8) + (this.b);
+        return n.toString(16);
+    }
+}
+
 let Conversions = {
     toRGB(imgData) {
         let rgb = [];
         let data = imgData.data;
         for(var i=0; i < data.length; i +=4) {
-            rgb.push({
-                r: data[i],
-                g: data[i + 1],
-                b: data[i + 2],
-                a: data[i + 3]
-            });
+            let pixel = new Pixel(data[i], data[i+1], data[i+2], data[i+3]);
+            rgb.push(pixel);
         }
         return rgb;
     },
-
-    toImgData(w, h, rgb) {
+    toImgData(rgb, w, h) {
         
-        let data = [];
-        for(var i=0; i < rgb.length; i++) {
-            data.push(rgb.r);
-            data.push(rgb.g);
-            data.push(rgb.b);
-            data.push(rgb.a);
-        }
-
-        return new ImageData(data, w, h);
     }
 }
 

@@ -1,0 +1,72 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>filterification</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="css/skeleton.css"/>
+        <link rel="stylesheet" type="text/css" href="css/tachyons.min.css"/>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="twelve columns">
+                    <h1>filterification</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="four columns">
+                   <div class="row">
+                       <div class="twelve columns">
+
+                         <h4>filter selection</h4>
+                         <ul class="unstyled">
+                             <li><button class="button-primary" id="red">Red</button></li>
+                             <li><button id="green">green</button></li>
+                             <li><button id="blue">blue</button></li>
+                             <li><button id="gray">gray</button></li>
+                             <li>
+                                <label for="brush">set brush size</label>
+                                <input type="range" min="5" max="250" value="20" step="5" id="brush"/><span id="brushSize">20</span>
+                         </li>
+
+                         </ul>
+                         <h4>controls</h4>
+                         <ul class="unstyled">
+                           <li><button id="reset">reset</button></li>
+                           <li><button id="save">save still</button></li>
+                           <li><button id="addFrame">add frame</button></li>
+                        </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="twelve columns">
+                            <h4>upload photo</h4>
+                            <form id="uploadForm">
+                                <input type="file" name="photo" id="photo" /> 
+                                <input type="submit" value="Upload"/>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div id="putCanvasHere" class="eight columns">
+                    <p>Click on the canvas to have fun, or don't and maybe it can still be fun!</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="twelve columns">
+                   made stupidly by <a href="http://yomills.com">dmamills</a> 
+                </div>
+            </div>
+
+        </div>
+
+
+        <img style="display:none;"src="example.jpg" id="replaceMe"/>
+        <script src="js/fetch.js"></script>
+        <script src="js/filterize-canvas.js"></script>
+        <script src="js/script.js"></script>
+    </body>
+</html>
