@@ -1,6 +1,6 @@
-# filterize-canvas
+# glitchatory
 
-apply filters to canvas using the mouse
+apply filters to canvas using the mouse to create stills and animations
 
 ## setup & running
 
@@ -11,8 +11,16 @@ gulp watch
 node app.js
 ```
 
-[![Travis build status](http://img.shields.io/travis/dmamills/filterize-canvas.svg?style=flat)](https://travis-ci.org/dmamills/filterize-canvas)
-[![Code Climate](https://codeclimate.com/github/dmamills/filterize-canvas/badges/gpa.svg)](https://codeclimate.com/github/dmamills/filterize-canvas)
-[![Test Coverage](https://codeclimate.com/github/dmamills/filterize-canvas/badges/coverage.svg)](https://codeclimate.com/github/dmamills/filterize-canvas)
-[![Dependency Status](https://david-dm.org/dmamills/filterize-canvas.svg)](https://david-dm.org/dmamills/filterize-canvas)
-[![devDependency Status](https://david-dm.org/dmamills/filterize-canvas/dev-status.svg)](https://david-dm.org/dmamills/filterize-canvas#info=devDependencies)
+## todo
+
+* react ui / rewrite client away from vanilla
+* animation frame preview reel
+* drag and drop rearrange of frames
+* save as gif (server)
+* cronjob to cleanup temp folders (prod)
+* adjustable loop interval
+* circular brush
+* brush preview?
+* block upload with no file
+* individual timing per file
+* moooar filters (blur!)
