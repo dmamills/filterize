@@ -89,6 +89,18 @@ class filterize {
     setBrushSize(size) {
         this.brushSize = size;
     }
+    loopFrames(frames, time) {
+        this.lastSnapshot = this.takeSnapshot();
+        var f = 0;
+        this.loopInterval = setInterval((function() {
+            this.ctx.putImageData(frames[f++], 0, 0);
+            if(f > frames.length - 1) f = 0;
+        }).bind(this), time);
+    }
+    stopLoop() {
+        clearInterval(this.loopInterval);
+        this.ctx.putImageData(this.lastSnapshot, 0, 0);
+    }
 
     getCanvas() {
         return this.canvas;

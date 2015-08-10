@@ -7,9 +7,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(this, function () {
     'use strict';
 
-    var Pixel = (function () {
-        function Pixel(r, g, b, a) {
-            _classCallCheck(this, Pixel);
+    var Pixel__Pixel = (function () {
+        function Pixel__Pixel(r, g, b, a) {
+            _classCallCheck(this, Pixel__Pixel);
 
             this.r = r;
             this.g = g;
@@ -17,7 +17,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             this.a = a;
         }
 
-        _createClass(Pixel, [{
+        _createClass(Pixel__Pixel, [{
             key: 'toData',
             value: function toData() {
                 return [this.r, this.g, this.b, this.a];
@@ -30,10 +30,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }]);
 
-        return Pixel;
+        return Pixel__Pixel;
     })();
 
-    var filterize_canvas__Conversions = {
+    var Pixel__default = Pixel__Pixel;
+
+    var Conversions__Conversions = {
         toRGB: function toRGB(imgData) {
             var rgb = [];
             var data = imgData.data;
@@ -46,6 +48,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         toImgData: function toImgData(rgb, w, h) {}
     };
 
+    var Conversions__default = Conversions__Conversions;
+
     var filterize = (function () {
         function filterize(imgEl, preFilterFn, postFilterFn, brushSize) {
             _classCallCheck(this, filterize);
@@ -55,6 +59,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             this.postFilter = postFilterFn;
             this.brushSize = brushSize;
             this.mouseDown = false;
+            this.undoHistory = [];
 
             this.canvas = document.createElement('canvas');
             this.canvas.style.cursor = 'pointer';
@@ -73,7 +78,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 this.canvas.onmousedown = (function (e) {
                     this.mouseDown = true;
+                    this.undoHistory.push(this.takeSnapshot());
+                    this.applyFilter(e);
                 }).bind(this);
+
                 this.canvas.onmouseup = (function (e) {
                     this.mouseDown = false;
                 }).bind(this);
@@ -81,22 +89,45 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.canvas.onmousemove = (function (e) {
                     if (!this.mouseDown) return;
 
-                    var x = e.offsetX;
-                    var y = e.offsetY;
-                    var h = this.brushSize / 2;
-
-                    var sx = e.offsetX - h >= 0 ? e.offsetX - h : 0;
-                    var sy = e.offsetY - h >= 0 ? e.offsetY - h : 0;
-
-                    var tempData = this.ctx.getImageData(sx, sy, this.brushSize, this.brushSize);
-
-                    var drawFn = this.createDrawFn(e);
-                    this.postFilter(tempData, drawFn);
+                    this.applyFilter(e);
                 }).bind(this);
             }).bind(this);
         }
 
         _createClass(filterize, [{
+            key: 'applyFilter',
+            value: function applyFilter(e) {
+                var x = e.offsetX;
+                var y = e.offsetY;
+                var h = this.brushSize / 2;
+
+                var sx = e.offsetX - h >= 0 ? e.offsetX - h : 0;
+                var sy = e.offsetY - h >= 0 ? e.offsetY - h : 0;
+
+                var tempData = this.ctx.getImageData(sx, sy, this.brushSize, this.brushSize);
+
+                var drawFn = this.createDrawFn(e);
+                this.postFilter(tempData, drawFn);
+            }
+        }, {
+            key: 'takeSnapshot',
+            value: function takeSnapshot() {
+                var w = this.imgEl.width;
+                var h = this.imgEl.height;
+                return this.ctx.getImageData(0, 0, w, h);
+            }
+        }, {
+            key: 'undo',
+            value: function undo() {
+                if (this.undoHistory.length === 0) {
+                    alert('nothing to undo');
+                    return;
+                }
+
+                var lastSnapshot = this.undoHistory.pop();
+                this.ctx.putImageData(lastSnapshot, 0, 0);
+            }
+        }, {
             key: 'createDrawFn',
             value: function createDrawFn(e) {
                 return (function (imgData) {
@@ -117,6 +148,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.brushSize = size;
             }
         }, {
+            key: 'loopFrames',
+            value: function loopFrames(frames, time) {
+                this.lastSnapshot = this.takeSnapshot();
+                var f = 0;
+                this.loopInterval = setInterval((function () {
+                    this.ctx.putImageData(frames[f++], 0, 0);
+                    if (f > frames.length - 1) f = 0;
+                }).bind(this), time);
+            }
+        }, {
+            key: 'stopLoop',
+            value: function stopLoop() {
+                clearInterval(this.loopInterval);
+                this.ctx.putImageData(this.lastSnapshot, 0, 0);
+            }
+        }, {
             key: 'getCanvas',
             value: function getCanvas() {
                 return this.canvas;
@@ -126,6 +173,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function reset() {
                 var w = this.imgEl.width;
                 var h = this.imgEl.height;
+                this.undoHistory = [];
                 this.ctx.drawImage(this.imgEl, 0, 0, w, h);
             }
         }]);
@@ -135,7 +183,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     ;
 
-    filterize.Conversions = filterize_canvas__Conversions;
+    filterize.Conversions = Conversions__default;
+    filterize.Pixel = Pixel__default;
     var filterize_canvas = filterize;
 
     return filterize_canvas;

@@ -32,6 +32,11 @@ gulp.task('clean-tmp', function(cb) {
   del(['tmp'], cb);
 });
 
+// Remove our temporary files
+gulp.task('clean-uploads', function(cb) {
+  del(['public/uploads/*', 'public/downloads/*'], cb);
+});
+
 // Send a notification when JSCS fails,
 // so that you know your changes didn't build
 function jscsNotify(file) {

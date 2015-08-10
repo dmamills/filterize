@@ -70,6 +70,19 @@
     }
     document.getElementById('brush').addEventListener('mousemove', updateBrush);
 
+    var isLooping = false;
+    var loopBtn = document.getElementById('loop')
+    loopBtn.addEventListener('click',function(e) {
+        if(isLooping) {
+            loopBtn.innerText = 'start loop';
+            f.stopLoop();
+            isLooping = false;
+        } else {
+            loopBtn.innerText = 'stop loop';
+            f.loopFrames(frames,100);
+            isLooping = true;
+        }
+    });
 
     document.getElementById('save').addEventListener('click', function() {
 
