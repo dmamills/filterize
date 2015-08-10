@@ -1,41 +1,5 @@
-class Pixel {
-    
-    constructor(r,g,b,a) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-    }
-
-    toData() {
-        return [
-            this.r,
-            this.g,
-            this.b,
-            this.a,
-        ];
-    }
-
-    toHex() {
-        let n = (this.r << 16) + (this.g << 8) + (this.b);
-        return n.toString(16);
-    }
-}
-
-let Conversions = {
-    toRGB(imgData) {
-        let rgb = [];
-        let data = imgData.data;
-        for(var i=0; i < data.length; i +=4) {
-            let pixel = new Pixel(data[i], data[i+1], data[i+2], data[i+3]);
-            rgb.push(pixel);
-        }
-        return rgb;
-    },
-    toImgData(rgb, w, h) {
-        
-    }
-}
+import Pixel from 'Pixel';
+import Conversions from 'Conversions';
 
 class filterize {
 
@@ -45,6 +9,7 @@ class filterize {
         this.postFilter = postFilterFn;
         this.brushSize = brushSize;
         this.mouseDown = false;
+        this.undoHistory = [];
 
         this.canvas = document.createElement('canvas');
         this.canvas.style.cursor = 'pointer';
@@ -60,28 +25,51 @@ class filterize {
             let imgData = this.ctx.getImageData(0, 0, w, h);
 
             this.preFilter(imgData);
-
             
-            this.canvas.onmousedown = (function(e) { this.mouseDown = true; }).bind(this);
-            this.canvas.onmouseup = (function(e) { this.mouseDown = false; }).bind(this);
+            this.canvas.onmousedown = (function(e) { 
+                this.mouseDown = true; 
+                this.undoHistory.push(this.takeSnapshot());
+                this.applyFilter(e);
+            }).bind(this);
+
+            this.canvas.onmouseup = (function(e) { 
+                this.mouseDown = false; 
+            }).bind(this);
 
             this.canvas.onmousemove = (function(e) {
                 if(!this.mouseDown) return;
 
-                let x = e.offsetX;
-                let y = e.offsetY;
-                let h = this.brushSize / 2;
-                
-                let sx = (e.offsetX - h >= 0) ? e.offsetX - h : 0;
-                let sy = (e.offsetY - h >= 0) ? e.offsetY - h : 0;
-
-                let tempData = this.ctx.getImageData(sx,sy, this.brushSize, this.brushSize);
-                
-                let drawFn = this.createDrawFn(e);
-                this.postFilter(tempData, drawFn);
-
+                this.applyFilter(e);
             }).bind(this);
         }).bind(this);
+    }
+    applyFilter(e) {
+        let x = e.offsetX;
+        let y = e.offsetY;
+        let h = this.brushSize / 2;
+        
+        let sx = (e.offsetX - h >= 0) ? e.offsetX - h : 0;
+        let sy = (e.offsetY - h >= 0) ? e.offsetY - h : 0;
+
+        let tempData = this.ctx.getImageData(sx,sy, this.brushSize, this.brushSize);
+        
+        let drawFn = this.createDrawFn(e);
+        this.postFilter(tempData, drawFn);
+    }
+    takeSnapshot() {
+        let w = this.imgEl.width;
+        let h = this.imgEl.height;
+        return this.ctx.getImageData(0, 0, w, h);
+    }
+
+    undo() {
+        if(this.undoHistory.length === 0) {
+            alert('nothing to undo');
+            return;
+        }
+
+        var lastSnapshot = this.undoHistory.pop();
+        this.ctx.putImageData(lastSnapshot, 0, 0);
     }
 
     createDrawFn(e) {
@@ -105,14 +93,16 @@ class filterize {
     getCanvas() {
         return this.canvas;
     }
+
     reset() {
         let w = this.imgEl.width;
         let h = this.imgEl.height;
+        this.undoHistory = [];
         this.ctx.drawImage(this.imgEl, 0, 0, w, h);
     }
 
 };
 
-
 filterize.Conversions = Conversions;
+filterize.Pixel = Pixel;
 export default filterize;

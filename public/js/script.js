@@ -1,10 +1,11 @@
 (function() {
 
-    var img = document.getElementById('replaceMe');
-    var pre = function(imgData) {
+    var pre = function(imgData) {};
 
+    var post = function(imgData, drawFn) {
+        imgData.data = selectedFilter(imgData.data);
+        drawFn(imgData);
     };
-
 
     function convertToGray(data) {
         for (var i = 0; i < data.length; i += 4) {
@@ -15,19 +16,6 @@
         }
 
         return data;
-    }
-
-
-    function alternateFilter(data) {
-           var testFilter =  [
-               [ 0, 0, 0],
-               [ 0, 1, 0],
-               [ 0, 0, 0]
-           ];
-        
-           var factor = 1.0;
-           var bias = 0.0;
-
     }
 
     function createColorFilter(n) {
@@ -41,42 +29,46 @@
 
     function createEventListener(fn) {
         return function() {
-            ff = fn;
+            selectedFilter = fn;
             document.getElementsByClassName('button-primary')[0].classList.remove('button-primary');
             this.classList.add('button-primary');
         }
     }
+    
+    var brushEl = document.getElementById('brush');
+    var brushSizeEl = document.getElementById('brushSize');
+    var frameCountEl = document.getElementById('framesCount');
+    var img = document.getElementById('replaceMe');
 
     convertToRed = createColorFilter(0);
     convertToGreen = createColorFilter(1);
     convertToBlue = createColorFilter(2);
 
-    var ff = convertToRed;
+    var selectedFilter = convertToRed;
 
     document.getElementById('red').addEventListener('click',createEventListener(convertToRed) )
     document.getElementById('green').addEventListener('click',createEventListener(convertToGreen) )
     document.getElementById('blue').addEventListener('click',createEventListener(convertToBlue) )
     document.getElementById('gray').addEventListener('click',createEventListener(convertToGray) )
 
-    var post = function(imgData, drawFn) {
-        imgData.data = ff(imgData.data);
-        drawFn(imgData);
-    };
 
     var f = new filterize(img, pre, post, 20);
-    document.getElementById('putCanvasHere').appendChild(f.getCanvas());
 
-    document.getElementById('reset').addEventListener('click', function() {
-        f.reset();
+    document.getElementById('putCanvasHere').appendChild(f.getCanvas());
+    document.getElementById('reset').addEventListener('click', function() { f.reset(); });
+    document.getElementById('undo').addEventListener('click', function() { f.undo(); });
+    document.getElementById('addFrame').addEventListener('click', function(e) {
+        frames.push(f.takeSnapshot());
+        frameCountEl.innerText = frames.length
     });
     
-    var brushEl = document.getElementById('brush');
-    var brushSizeEl = document.getElementById('brushSize');
-    document.getElementById('brush').addEventListener('change', function() {
-            
+    var frames = [];
+
+    function updateBrush() {
         brushSizeEl.innerHTML = brushEl.value;
         f.setBrushSize(brushEl.value);
-    });
+    }
+    document.getElementById('brush').addEventListener('mousemove', updateBrush);
 
 
     document.getElementById('save').addEventListener('click', function() {
@@ -98,6 +90,8 @@
             var tempEl = document.createElement('a');
             tempEl.href = 'http://localhost:8000/download/' + data.id;
             tempEl.click();
+          }, function(err) {
+
           });
     });
 
