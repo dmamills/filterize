@@ -31,7 +31,10 @@
 
 .timeline-container {
     background-color: cyan;
-    flex: 1;
+    position: absolute;
+    bottom: 0px;
+    width:100%;
+    min-height:200px;
 }
 
 .HolyGrail-nav {
