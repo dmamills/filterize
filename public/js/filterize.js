@@ -217,6 +217,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var filterSelectionController__default = filterSelectionController__filterSelectionController;
 
+    var fileControlsController__fileControlsController = function fileControlsController__fileControlsController($scope) {
+        $scope.onReset = $scope.onReset || angular.noop;
+        $scope.onUndo = $scope.onUndo || angular.noop;
+        $scope.onSave = $scope.onSave || angular.noop;
+
+        console.log('fcc');
+    };
+
+    var fileControlsController__default = fileControlsController__fileControlsController;
+
+    var fileUploaderController__fileUploaderController = function fileUploaderController__fileUploaderController($scope) {
+
+        $scope.onUpload = $scope.onUpload || function (data) {
+            debugger;
+        };
+        var uploadForm = document.getElementById('uploadForm');
+
+        $scope.submit = function (e) {
+            e.preventDefault();
+            fetch('/upload', {
+                method: 'post',
+                body: new FormData(uploadForm)
+            }).then(function (res) {
+                return res.json();
+            }).then($scope.onUpload, function (err) {
+                console.log('error');
+            });
+        };
+    };
+
+    var fileUploaderController__default = fileUploaderController__fileUploaderController;
+
     var _filterService__filterService = function _filterService__filterService() {
 
         var grayscaleFilter = new Filter('grayscale', function (data) {
@@ -268,7 +300,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     window.filterize = filterize;
 
-    angular.module('filterize', []).controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).service('filterService', _filterService).directive('toolBox', function () {
+    angular.module('filterize', [])
+
+    //Controllers
+    .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default)
+
+    //Services
+    .service('filterService', _filterService)
+
+    //Directives
+    .directive('toolBox', function () {
         return {
             restrict: 'E',
             templateUrl: 'tpls/toolBox.tpl.html',
@@ -279,6 +320,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             restrict: 'E',
             templateUrl: 'tpls/filterSelection.tpl.html',
             controller: 'filterSelectionController'
+        };
+    }).directive('fileControls', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/fileControls.tpl.html',
+            controller: 'fileControlsController'
+        };
+    }).directive('fileUploader', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/fileUploader.tpl.html',
+            controller: 'fileUploaderController'
         };
     }).run(function ($window, $rootScope, filterService) {});
 });

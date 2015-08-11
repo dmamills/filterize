@@ -1,4 +1,5 @@
-import Filter from 'Filter'
+import Filter from 'Filter';
+
 let toolBoxController = ($scope) => {
 
     $scope.selectedFilter = undefined;
