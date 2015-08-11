@@ -1,9 +1,10 @@
-let fileUploaderController = ($scope) => {
+let fileUploaderController = ($scope, $rootScope) => {
 
-    $scope.onUpload = $scope.onUpload || function(data) {
-        debugger;
 
+    let onUpload = (data) => {
+        $rootScope.onUpload(data.filepath);
     };
+
     let uploadForm = document.getElementById('uploadForm');
 
     $scope.submit = (e) => {
@@ -13,7 +14,7 @@ let fileUploaderController = ($scope) => {
             body: new FormData(uploadForm)
         }).then(function(res) {
             return res.json();
-        }).then($scope.onUpload, function(err) {
+        }).then(onUpload, function(err) {
             console.log('error');
         });
     }

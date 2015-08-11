@@ -264,11 +264,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var fileControlsController__default = fileControlsController__fileControlsController;
 
-    var fileUploaderController__fileUploaderController = function fileUploaderController__fileUploaderController($scope) {
+    var fileUploaderController__fileUploaderController = function fileUploaderController__fileUploaderController($scope, $rootScope) {
 
-        $scope.onUpload = $scope.onUpload || function (data) {
-            debugger;
+        var onUpload = function onUpload(data) {
+            $rootScope.onUpload(data.filepath);
         };
+
         var uploadForm = document.getElementById('uploadForm');
 
         $scope.submit = function (e) {
@@ -278,7 +279,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 body: new FormData(uploadForm)
             }).then(function (res) {
                 return res.json();
-            }).then($scope.onUpload, function (err) {
+            }).then(onUpload, function (err) {
                 console.log('error');
             });
         };
@@ -381,6 +382,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var img = document.getElementById('replaceMe');
         $rootScope.selectedFilter = filterService[0];
         var pre = function pre(imgData, drawFn) {};
+
+        $rootScope.onUpload = function (filepath) {
+            //TODO: fix this don't create a new filterize object, just replace the base img
+            // and reset everything inside the object. Filterize should be a singleton
+            img.src = '/' + filepath;
+            $rootScope.filterize = new Filterize(img, pre, post, 20);
+            var canvasHolder = document.getElementById('putCanvasHere');
+            canvasHolder.innerHTML = '';
+            canvasHolder.appendChild($rootScope.filterize.getCanvas());
+        };
 
         var post = function post(imgData, drawFn) {
             var data = $rootScope.selectedFilter.fn(imgData.data);

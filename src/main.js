@@ -62,6 +62,16 @@ angular.module('filterize', [])
 
     }
 
+    $rootScope.onUpload = (filepath) => {
+        //TODO: fix this don't create a new filterize object, just replace the base img
+        // and reset everything inside the object. Filterize should be a singleton
+        img.src = '/' + filepath;
+        $rootScope.filterize = new Filterize(img, pre, post, 20);
+        var canvasHolder = document.getElementById('putCanvasHere');
+        canvasHolder.innerHTML = '';
+        canvasHolder.appendChild($rootScope.filterize.getCanvas());
+    }
+
     let post = (imgData, drawFn) => {
         var data = $rootScope.selectedFilter.fn(imgData.data);
         drawFn(new ImageData(data,imgData.width, imgData.height));
