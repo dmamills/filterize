@@ -15,6 +15,7 @@ const browserify = require('browserify');
 const runSequence = require('run-sequence');
 const source = require('vinyl-source-stream');
 const concat = require('gulp-concat');
+const sass = require('gulp-sass');
 
 // Gather the library data from `package.json`
 const manifest = require('./package.json');
@@ -36,6 +37,14 @@ var vendor_files = [
 
 ].map(concatPath('./app/bower_components/')); 
 
+var SASS_ENTRY_FILE = './sass/main.scss';
+
+gulp.task('compile-sass', function() {
+    gulp.src(SASS_ENTRY_FILE)
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest('./public/css'));
+
+});
 
 
 gulp.task('vendor-concat', function() {
@@ -188,16 +197,14 @@ gulp.task('build-in-sequence', function(callback) {
   runSequence(['lint-src', 'lint-test'], 'browserify', callback);
 });
 
-// These are JS files that should be watched by Gulp. When running tests in the browser,
-// watchify is used instead, so these aren't included.
 const jsWatchFiles = ['src/**/*', 'test/**/*'];
-// These are files other than JS files which are to be watched. They are always watched.
 const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
 
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {
-  const watchFiles = jsWatchFiles.concat(otherWatchFiles);
-  gulp.watch(watchFiles, ['build']);
+    const watchFiles = jsWatchFiles.concat(otherWatchFiles);
+    gulp.watch(watchFiles, ['build']);
+    gulp.watch('./sass/**/*.scss', ['compile-sass'])
 });
 
 // Set up a livereload environment for our spec runner
