@@ -50,6 +50,10 @@ angular.module('filterize', [])
     }
 })
 
+//environment variables
+.constant('API_URL', 'http://localhost:8000')
+// .constant('API_URL', 'http://theglitchery.com');
+
 .run(function($window, $rootScope, filterService) {
 
     let img = document.getElementById('replaceMe');

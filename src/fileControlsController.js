@@ -1,9 +1,39 @@
-let fileControlsController = ($scope) => {
-    $scope.onReset = $scope.onReset || angular.noop;
-    $scope.onUndo = $scope.onUndo || angular.noop;
-    $scope.onSave = $scope.onSave || angular.noop;
+let fileControlsController = ($scope, $rootScope, API_URL) => {
 
-    console.log('fcc');
+    let filterize = $rootScope.filterize;
+
+    $scope.onReset = () => {
+        filterize.reset();
+    }
+
+    $scope.onUndo = () => {
+        filterize.undo();
+    }
+
+    $scope.onSave = () => {
+
+        let data = filterize.getCanvas().toDataURL();
+        let formData = new FormData();
+        formData.append('data', data);
+
+        fetch(`${API_URL}/save`, {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: data
+            })
+          }).then((res) => { return res.json(); })
+          .then((data) => {
+            var tempEl = document.createElement('a');
+            tempEl.href = `${API_URL}/download/${data.id}`;
+            tempEl.click();
+          }, (err) => {
+
+          });
+    }
 }
 
 

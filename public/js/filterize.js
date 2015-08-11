@@ -225,12 +225,41 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var filterSelectionController__default = filterSelectionController__filterSelectionController;
 
-    var fileControlsController__fileControlsController = function fileControlsController__fileControlsController($scope) {
-        $scope.onReset = $scope.onReset || angular.noop;
-        $scope.onUndo = $scope.onUndo || angular.noop;
-        $scope.onSave = $scope.onSave || angular.noop;
+    var fileControlsController__fileControlsController = function fileControlsController__fileControlsController($scope, $rootScope, API_URL) {
 
-        console.log('fcc');
+        var filterize = $rootScope.filterize;
+
+        $scope.onReset = function () {
+            filterize.reset();
+        };
+
+        $scope.onUndo = function () {
+            filterize.undo();
+        };
+
+        $scope.onSave = function () {
+
+            var data = filterize.getCanvas().toDataURL();
+            var formData = new FormData();
+            formData.append('data', data);
+
+            fetch(API_URL + '/save', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: data
+                })
+            }).then(function (res) {
+                return res.json();
+            }).then(function (data) {
+                var tempEl = document.createElement('a');
+                tempEl.href = API_URL + '/download/' + data.id;
+                tempEl.click();
+            }, function (err) {});
+        };
     };
 
     var fileControlsController__default = fileControlsController__fileControlsController;
@@ -341,7 +370,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             templateUrl: 'tpls/fileUploader.tpl.html',
             controller: 'fileUploaderController'
         };
-    }).run(function ($window, $rootScope, filterService) {
+    })
+
+    //environment variables
+    .constant('API_URL', 'http://localhost:8000')
+    // .constant('API_URL', 'http://theglitchery.com');
+
+    .run(function ($window, $rootScope, filterService) {
 
         var img = document.getElementById('replaceMe');
         $rootScope.selectedFilter = filterService[0];
