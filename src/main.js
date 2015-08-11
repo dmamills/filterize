@@ -1,5 +1,4 @@
-import filterize from 'filterize-canvas';
-
+import Filterize from 'filterize-canvas';
 
 import toolBoxController from 'toolBoxController';
 import filterSelectionController from 'filterSelectionController';
@@ -8,7 +7,7 @@ import fileUploaderController from 'fileUploaderController';
 
 import filterService from 'filterService';
 
-window.filterize = filterize;
+window.Filterize = Filterize;
 
 angular.module('filterize', [])
 
@@ -53,6 +52,18 @@ angular.module('filterize', [])
 
 .run(function($window, $rootScope, filterService) {
 
+    let img = document.getElementById('replaceMe');
+    $rootScope.selectedFilter = filterService[0];
+    let pre = (imgData, drawFn) => {
 
+    }
+
+    let post = (imgData, drawFn) => {
+        var data = $rootScope.selectedFilter.fn(imgData.data);
+        drawFn(new ImageData(data,imgData.width, imgData.height));
+    }
+
+    $rootScope.filterize = new Filterize(img, pre, post, 20);
+    document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());
 });
 

@@ -1,7 +1,7 @@
 import Pixel from 'Pixel';
 import Conversions from 'Conversions';
 
-class filterize {
+class Filterize {
 
     constructor(imgEl, preFilterFn, postFilterFn, brushSize) {
         this.imgEl = imgEl;
@@ -15,7 +15,7 @@ class filterize {
         this.canvas.style.cursor = 'pointer';
         this.ctx = this.canvas.getContext('2d');
 
-        this.imgEl.onload =  (function() {
+        // this.imgEl.onload = (function() {
             let w = this.imgEl.width;
             let h = this.imgEl.height;
             this.canvas.width = w;
@@ -41,7 +41,7 @@ class filterize {
 
                 this.applyFilter(e);
             }).bind(this);
-        }).bind(this);
+        // }).bind(this);
     }
     applyFilter(e) {
         let x = e.offsetX;
@@ -115,6 +115,6 @@ class filterize {
 
 };
 
-filterize.Conversions = Conversions;
-filterize.Pixel = Pixel;
-export default filterize;
+Filterize.Conversions = Conversions;
+Filterize.Pixel = Pixel;
+export default Filterize;

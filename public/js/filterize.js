@@ -50,9 +50,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var Conversions__default = Conversions__Conversions;
 
-    var filterize = (function () {
-        function filterize(imgEl, preFilterFn, postFilterFn, brushSize) {
-            _classCallCheck(this, filterize);
+    var Filterize = (function () {
+        function Filterize(imgEl, preFilterFn, postFilterFn, brushSize) {
+            _classCallCheck(this, Filterize);
 
             this.imgEl = imgEl;
             this.preFilter = preFilterFn;
@@ -65,36 +65,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             this.canvas.style.cursor = 'pointer';
             this.ctx = this.canvas.getContext('2d');
 
-            this.imgEl.onload = (function () {
-                var w = this.imgEl.width;
-                var h = this.imgEl.height;
-                this.canvas.width = w;
-                this.canvas.height = h;
+            // this.imgEl.onload = (function() {
+            var w = this.imgEl.width;
+            var h = this.imgEl.height;
+            this.canvas.width = w;
+            this.canvas.height = h;
 
-                this.ctx.drawImage(this.imgEl, 0, 0, w, h);
-                var imgData = this.ctx.getImageData(0, 0, w, h);
+            this.ctx.drawImage(this.imgEl, 0, 0, w, h);
+            var imgData = this.ctx.getImageData(0, 0, w, h);
 
-                this.preFilter(imgData);
+            this.preFilter(imgData);
 
-                this.canvas.onmousedown = (function (e) {
-                    this.mouseDown = true;
-                    this.undoHistory.push(this.takeSnapshot());
-                    this.applyFilter(e);
-                }).bind(this);
-
-                this.canvas.onmouseup = (function (e) {
-                    this.mouseDown = false;
-                }).bind(this);
-
-                this.canvas.onmousemove = (function (e) {
-                    if (!this.mouseDown) return;
-
-                    this.applyFilter(e);
-                }).bind(this);
+            this.canvas.onmousedown = (function (e) {
+                this.mouseDown = true;
+                this.undoHistory.push(this.takeSnapshot());
+                this.applyFilter(e);
             }).bind(this);
+
+            this.canvas.onmouseup = (function (e) {
+                this.mouseDown = false;
+            }).bind(this);
+
+            this.canvas.onmousemove = (function (e) {
+                if (!this.mouseDown) return;
+
+                this.applyFilter(e);
+            }).bind(this);
+            // }).bind(this);
         }
 
-        _createClass(filterize, [{
+        _createClass(Filterize, [{
             key: 'applyFilter',
             value: function applyFilter(e) {
                 var x = e.offsetX;
@@ -178,13 +178,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }]);
 
-        return filterize;
+        return Filterize;
     })();
 
     ;
 
-    filterize.Conversions = Conversions__default;
-    filterize.Pixel = Pixel__default;
+    Filterize.Conversions = Conversions__default;
+    Filterize.Pixel = Pixel__default;
 
     var Filter = function Filter(name, fn) {
         _classCallCheck(this, Filter);
@@ -203,11 +203,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var toolBoxController__default = toolBoxController__toolBoxController;
 
-    var filterSelectionController__filterSelectionController = function filterSelectionController__filterSelectionController($scope, filterService) {
+    var filterSelectionController__filterSelectionController = function filterSelectionController__filterSelectionController($scope, $rootScope, filterService) {
 
         $scope.filters = filterService;
+
         $scope.selectedFilter = filterService[0];
+        $rootScope.selectedFilter = $scope.selectedFilter;
         $scope.selectedFilter.selected = true;
+
+        $scope.$watch('brushSize', function (nv, ov) {
+            if (!nv) return;
+            $rootScope.filterize.setBrushSize(nv);
+        });
+
         $scope.select = function (filter) {
             $scope.selectedFilter.selected = false;
             filter.selected = true;
@@ -298,7 +306,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var _filterService = _filterService__filterService;
 
-    window.filterize = filterize;
+    window.Filterize = Filterize;
 
     angular.module('filterize', [])
 
@@ -333,6 +341,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             templateUrl: 'tpls/fileUploader.tpl.html',
             controller: 'fileUploaderController'
         };
-    }).run(function ($window, $rootScope, filterService) {});
+    }).run(function ($window, $rootScope, filterService) {
+
+        var img = document.getElementById('replaceMe');
+        $rootScope.selectedFilter = filterService[0];
+        var pre = function pre(imgData, drawFn) {};
+
+        var post = function post(imgData, drawFn) {
+            var data = $rootScope.selectedFilter.fn(imgData.data);
+            drawFn(new ImageData(data, imgData.width, imgData.height));
+        };
+
+        $rootScope.filterize = new Filterize(img, pre, post, 20);
+        document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());
+    });
 });
 //# sourceMappingURL=filterize.js.map
