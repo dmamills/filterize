@@ -1,88 +1,69 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html class="no-js" lang="" ng-app="filterize">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <title>filterification</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" type="text/css" href="css/skeleton.css"/>
         <link rel="stylesheet" type="text/css" href="css/tachyons.min.css"/>
+        <link rel="stylesheet" type="text/css" href="css/layout.css"/>
     </head>
     <body>
-        <div class="container">
-            <div class="row">
-                <div class="twelve columns">
-                    <h1>filterification</h1>
+    <body class="HolyGrail">
+        <header>
+            <h3>the glitchery</h3>
+        </header>
+        <div class="HolyGrail-body">
+            <main class="HolyGrail-content">
+                <div class="canvas-container">
+                    <div id="putCanvasHere"></div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="four columns">
-                   <div class="row">
-                       <div class="twelve columns">
+                <div class="timeline-container">
+                    <p>timeline container</p>
 
-                         <h4>filter selection</h4>
-                         <ul class="unstyled">
-                             <li><button class="button-primary" id="red">red</button></li>
-                             <li><button id="green">green</button></li>
-                             <li><button id="blue">blue</button></li>
-                             <li><button id="gray">gray</button></li>
-                             <li>
-                                <label for="brush">set brush size</label>
-                                <input type="range" min="5" max="250" value="20" step="5" id="brush"/><span id="brushSize">20</span>
-                         </li>
-
-                         </ul>
-                         <h4>controls</h4>
-                         <ul class="unstyled">
-                           <li><button id="reset">reset</button></li>
-                           <li><button id="undo">undo</button></li>
-                           <li><button id="save">save still</button></li>
-                        </ul>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="twelve columns">
-                            <h4>animation</h4>
-                            <p>Saved frames: <span id="framesCount">0</span>
-                            <ul class="unstyled">
-                               <li><button id="addFrame">add frame</button></li>
-                               <li><button id="loop">start loop</button></li>
-                            </ul>
-
-        
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="twelve columns">
-                            <h4>upload photo</h4>
-                            <form id="uploadForm">
-                                <input type="file" name="photo" id="photo" /> 
-                                <input type="submit" value="Upload"/>
-                            </form>
-                        </div>
-                    </div>
                 </div>
-                <div id="putCanvasHere" class="eight columns">
-                    <p>Click on the canvas to have fun, or don't and maybe it can still be fun!</p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="eight columns">
-                </div>
-            </div>
-            <div class="row">
-                <div class="twelve columns">
-                   made stupidly by <a href="http://yomills.com">dmamills</a> 
-                </div>
-            </div>
-
+            </main>
+            <nav class="HolyGrail-nav">
+                <tool-box></tool-box>
+                <!-- <h4>filter selection</h4> -->
+                <!-- <ul class="unstyled"> -->
+                <!--     <li><button class="button-primary" id="red">red</button></li> -->
+                <!--     <li><button id="green">green</button></li> -->
+                <!--     <li><button id="blue">blue</button></li> -->
+                <!--     <li><button id="gray">gray</button></li> -->
+                <!--     <li><button id="brighten">brighten</button></li> -->
+                <!--     <li><button id="darken">darken</button></li> -->
+                <!--     <li> -->
+                <!--        <label for="brush">set brush size</label> -->
+                <!--        <input type="range" min="5" max="250" value="20" step="5" id="brush"/><span id="brushSize">20</span> -->
+                    <!-- </li> -->
+                <!-- </ul> -->
+                <h4>controls</h4>
+                <ul class="unstyled">
+                  <li><button id="reset">reset</button></li>
+                  <li><button id="undo">undo</button></li>
+                  <li><button id="save">save still</button></li>
+                </ul>
+                <h4>animation</h4>
+                <p>Saved frames: <span id="framesCount">0</span>
+                <ul class="unstyled">
+                   <li><button id="addFrame">add frame</button></li>
+                   <li><button id="loop">start loop</button></li>
+                </ul>
+                <h4>upload photo</h4>
+                <form id="uploadForm">
+                    <input type="file" name="photo" id="photo" /> 
+                    <input type="submit" value="Upload"/>
+                </form>
+            </nav>
         </div>
 
-
         <img style="display:none;"src="example.jpg" id="replaceMe"/>
-        <script src="js/fetch.js"></script>
-        <script src="js/filterize-canvas.js"></script>
-        <script src="js/script.js"></script>
+        <script src="js/vendor.js"></script>
+        <script src="js/filterize.js"></script>
+        <!-- <script src="js/script.js"></script> -->
     </body>
 </html>

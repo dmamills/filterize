@@ -2,9 +2,9 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : global.filterize = factory();
-})(this, function () {
+(function (factory) {
+    !(typeof exports === 'object' && typeof module !== 'undefined') && typeof define === 'function' && define.amd ? define(factory) : factory();
+})(function () {
     'use strict';
 
     var Pixel__Pixel = (function () {
@@ -185,8 +185,101 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     filterize.Conversions = Conversions__default;
     filterize.Pixel = Pixel__default;
-    var filterize_canvas = filterize;
 
-    return filterize_canvas;
+    var Filter = function Filter(name, fn) {
+        _classCallCheck(this, Filter);
+
+        this.name = name;
+        this.fn = fn;
+    };
+
+    ;
+
+    var toolBoxController__toolBoxController = function toolBoxController__toolBoxController($scope) {
+
+        $scope.selectedFilter = undefined;
+        $scope.brushSize = 20;
+    };
+
+    var toolBoxController__default = toolBoxController__toolBoxController;
+
+    var filterSelectionController__filterSelectionController = function filterSelectionController__filterSelectionController($scope, filterService) {
+
+        $scope.filters = filterService;
+        $scope.selectedFilter = filterService[0];
+        $scope.selectedFilter.selected = true;
+        $scope.select = function (filter) {
+            $scope.selectedFilter.selected = false;
+            filter.selected = true;
+            $scope.selectedFilter = filter;
+        };
+    };
+
+    var filterSelectionController__default = filterSelectionController__filterSelectionController;
+
+    var _filterService__filterService = function _filterService__filterService() {
+
+        var grayscaleFilter = new Filter('grayscale', function (data) {
+            for (var i = 0; i < data.length; i += 4) {
+                var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = avg;
+                data[i + 1] = avg;
+                data[i + 2] = avg;
+            }
+
+            return data;
+        });
+
+        var createAlterFilter = function createAlterFilter(threshold) {
+            return function (data) {
+                for (var i = 0; i < data.length; i += 4) {
+                    data[i] = data[i] + data[i] * threshold;
+                    data[i + 1] = data[i + 1] + data[i + 1] * threshold;
+                    data[i + 2] = data[i + 2] + data[i + 2] * threshold;
+
+                    if (data[i] > 255) data[i] = 255;
+                    if (data[i + 1] > 255) data[i + 1] = 255;
+                    if (data[i + 2] > 255) data[i + 2] = 255;
+                }
+                return data;
+            };
+        };
+
+        var createColorFilter = function createColorFilter(n) {
+            return function (data) {
+                for (var i = 0; i < data.length; i += 4) {
+                    data[i + n] = data[i + n] << 2 <= 255 ? data[i + n] << 2 : 255;
+                }
+                return data;
+            };
+        };
+
+        var redFilter = new Filter('red', createColorFilter(0));
+        var greenFilter = new Filter('green', createColorFilter(1));
+        var blueFilter = new Filter('blue', createColorFilter(2));
+
+        var brightenFilter = new Filter('brighten', createAlterFilter(0.1));
+        var darkenFilter = new Filter('darken', createAlterFilter(-0.05));
+
+        return [grayscaleFilter, redFilter, greenFilter, blueFilter, brightenFilter, darkenFilter];
+    };
+
+    var _filterService = _filterService__filterService;
+
+    window.filterize = filterize;
+
+    angular.module('filterize', []).controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).service('filterService', _filterService).directive('toolBox', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/toolBox.tpl.html',
+            controller: 'toolBoxController'
+        };
+    }).directive('filterSelection', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/filterSelection.tpl.html',
+            controller: 'filterSelectionController'
+        };
+    }).run(function ($window, $rootScope, filterService) {});
 });
-//# sourceMappingURL=filterize-canvas.js.map
+//# sourceMappingURL=filterize.js.map

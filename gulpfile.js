@@ -14,13 +14,36 @@ const esperanto = require('esperanto');
 const browserify = require('browserify');
 const runSequence = require('run-sequence');
 const source = require('vinyl-source-stream');
+const concat = require('gulp-concat');
 
 // Gather the library data from `package.json`
 const manifest = require('./package.json');
 const config = manifest.babelBoilerplateOptions;
 const mainFile = manifest.main;
 const destinationFolder = path.dirname(mainFile);
-const exportFileName = path.basename(mainFile, path.extname(mainFile));
+const exportFileName = 'filterize'; //path.basename(mainFile, path.extname(mainFile));
+
+function concatPath(root) {
+    return function(f) {
+        return root + f;
+    }
+};
+
+
+var vendor_files = [
+    'fetch/fetch.js',
+    'angular/angular.js'
+
+].map(concatPath('./app/bower_components/')); 
+
+
+
+gulp.task('vendor-concat', function() {
+    gulp.src(vendor_files)
+        .pipe(concat('vendor.js'))
+        .pipe(gulp.dest('./public/js/'));
+
+});
 
 // Remove the built files
 gulp.task('clean', function(cb) {
@@ -41,7 +64,8 @@ gulp.task('clean-uploads', function(cb) {
 // so that you know your changes didn't build
 function jscsNotify(file) {
   if (!file.jscs) { return; }
-  return file.jscs.success ? false : 'JSCS failed';
+  // return file.jscs.success ? false : 'JSCS failed';
+    return false;
 }
 
 function createLintTask(taskName, files) {
@@ -80,6 +104,7 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
       .pipe($.babel())
       .pipe($.sourcemaps.write('./'))
       .pipe(gulp.dest(destinationFolder))
+      .pipe(gulp.dest('./public/js'))
       .pipe($.filter(['*', '!**/*.js.map']))
       .pipe($.rename(exportFileName + '.min.js'))
       .pipe($.sourcemaps.init({ loadMaps: true }))
@@ -172,7 +197,7 @@ const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {
   const watchFiles = jsWatchFiles.concat(otherWatchFiles);
-  gulp.watch(watchFiles, ['test', 'build']);
+  gulp.watch(watchFiles, ['build']);
 });
 
 // Set up a livereload environment for our spec runner

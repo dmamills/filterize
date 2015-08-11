@@ -1,4 +1,4 @@
-(function() {
+(function(window) {
 
     var pre = function(imgData) {};
 
@@ -16,6 +16,23 @@
         }
 
         return data;
+    }
+
+
+    function createAlterFilter(threshold) {
+        return function(data) {
+            for(var i =0; i < data.length;i += 4) {
+                data[i] = data[i] + (data[i] * threshold);
+                data[i+1] = data[i+1] + (data[i+1] * threshold);
+                data[i+2] = data[i+2] + (data[i+2] * threshold);
+
+                if(data[i] > 255) data[i] = 255;
+                if(data[i+1] > 255) data[i+1] = 255;
+                if(data[i+2] > 255) data[i+2] = 255;
+            }
+            return data;
+
+        }
     }
 
     function createColorFilter(n) {
@@ -38,7 +55,6 @@
     var brushEl = document.getElementById('brush');
     var brushSizeEl = document.getElementById('brushSize');
     var frameCountEl = document.getElementById('framesCount');
-    var img = document.getElementById('replaceMe');
 
     convertToRed = createColorFilter(0);
     convertToGreen = createColorFilter(1);
@@ -50,10 +66,13 @@
     document.getElementById('green').addEventListener('click',createEventListener(convertToGreen) )
     document.getElementById('blue').addEventListener('click',createEventListener(convertToBlue) )
     document.getElementById('gray').addEventListener('click',createEventListener(convertToGray) )
+    document.getElementById('brighten').addEventListener('click',createEventListener(createAlterFilter(0.1)));
+    document.getElementById('darken').addEventListener('click',createEventListener(createAlterFilter(-0.05)));
 
 
-    var f = new filterize(img, pre, post, 20);
+    // var f = new filterize(img, pre, post, 20);
 
+    debugger;
     document.getElementById('putCanvasHere').appendChild(f.getCanvas());
     document.getElementById('reset').addEventListener('click', function() { f.reset(); });
     document.getElementById('undo').addEventListener('click', function() { f.undo(); });
@@ -126,4 +145,4 @@
         });
     };
 
-}).call(this);
+}).call(window);

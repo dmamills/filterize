@@ -1,0 +1,46 @@
+
+.HolyGrail {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.HolyGrail-body {
+  display: flex;
+  flex: 1;
+}
+
+.HolyGrail-content {
+    flex:1;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+.HolyGrail-nav {
+    padding: 20px;
+    flex: 0 0 20em;
+    background-color: #D3D3D3;
+    max-height: 1024px;
+    overflow: scroll;
+}
+
+.canvas-container {
+    background-color:yellow;
+    flex: 1;
+}
+
+.timeline-container {
+    background-color: cyan;
+    flex: 1;
+}
+
+.HolyGrail-nav {
+  order: -1;
+}
+
+header {
+    font-family: 'Pacifico', cursive;
+    padding: 20px;
+color:white;
+    background-color:red;
+}
