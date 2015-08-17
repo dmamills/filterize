@@ -3,25 +3,8 @@ var multipart = require('connect-multiparty');
 var uuid = require('node-uuid');
 var fs = require('fs');
 var bodyParser = require('body-parser');
-var winston = require('winston');
-var moment = require('moment');
 
-
-
-var logger = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)({
-            timestamp: function() {
-                return moment().format('MM/DD/YYYY hh:mm:ss a');
-            },
-            formatter: function(options) {
-                return '[' + options.timestamp() + '] ' + options.level.toUpperCase() + ': ' + (options.message ? options.message : '');
-            }
-        }) 
-    ]
-
-})
-
+var logger = require('./logger');
 
 var multipartMiddleware = multipart({ uploadDir: __dirname + '/public/uploads'});
 var app = express();
@@ -66,7 +49,6 @@ app.get('/download/:id', function(req,res) {
 
 app.post('/upload', multipartMiddleware, function(req,res) {
     var photo = req.files.photo;
-    console.log('got upload');
     console.log(photo);
     res.json({'result': 'okay', 'filepath': photo.path.split('/public/')[1]});
 });

@@ -164,6 +164,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.ctx.putImageData(this.lastSnapshot, 0, 0);
             }
         }, {
+            key: 'setBaseImage',
+            value: function setBaseImage(imgEl) {
+                this.imgEl = imgEl;
+                this.canvas.width = this.imgEl.width;
+                this.canvas.height = this.imgEl.height;
+                this.reset();
+            }
+        }, {
             key: 'getCanvas',
             value: function getCanvas() {
                 return this.canvas;
@@ -287,6 +295,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var fileUploaderController__default = fileUploaderController__fileUploaderController;
 
+    var timelinePreviewController__timelineController = function timelinePreviewController__timelineController($scope, filterService) {
+        console.log('ayy');
+    };
+
+    var timelinePreviewController = timelinePreviewController__timelineController;
+
+    var timelineControlsController__timelineControlsController = function timelineControlsController__timelineControlsController($scope, filterService) {
+        console.log('ayy');
+    };
+
+    var timelineControlsController__default = timelineControlsController__timelineControlsController;
+
     var _filterService__filterService = function _filterService__filterService() {
 
         var grayscaleFilter = new Filter('grayscale', function (data) {
@@ -341,7 +361,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     angular.module('filterize', [])
 
     //Controllers
-    .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default)
+    .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default).controller('timelinePreviewController', timelinePreviewController).controller('timelineControlsController', timelineControlsController__default)
 
     //Services
     .service('filterService', _filterService)
@@ -371,6 +391,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             templateUrl: 'tpls/fileUploader.tpl.html',
             controller: 'fileUploaderController'
         };
+    }).directive('timelinePreview', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/timelinePreview.tpl.html',
+            controller: 'timelinePreviewController'
+        };
+    }).directive('timelineControls', function () {
+        return {
+            restrict: 'E',
+            templateUrl: 'tpls/timelineControls.tpl.html',
+            controller: 'timelineControlsController'
+        };
     })
 
     //environment variables
@@ -384,13 +416,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var pre = function pre(imgData, drawFn) {};
 
         $rootScope.onUpload = function (filepath) {
-            //TODO: fix this don't create a new filterize object, just replace the base img
-            // and reset everything inside the object. Filterize should be a singleton
             img.src = '/' + filepath;
-            $rootScope.filterize = new Filterize(img, pre, post, 20);
-            var canvasHolder = document.getElementById('putCanvasHere');
-            canvasHolder.innerHTML = '';
-            canvasHolder.appendChild($rootScope.filterize.getCanvas());
+
+            img.onload = function () {
+                $rootScope.$apply(function () {
+                    $rootScope.filterize.setBaseImage(img);
+                });
+            };
         };
 
         var post = function post(imgData, drawFn) {
@@ -398,7 +430,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             drawFn(new ImageData(data, imgData.width, imgData.height));
         };
 
+        //create the filterize object
         $rootScope.filterize = new Filterize(img, pre, post, 20);
+
+        //lol probably not "the angular way"
         document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());
     });
 });

@@ -45,6 +45,7 @@ let filterService = () => {
     let brightenFilter = new Filter('brighten', createAlterFilter(0.1));
     let darkenFilter = new Filter('darken', createAlterFilter(-0.05));
 
+
     return [
         grayscaleFilter,
         redFilter,

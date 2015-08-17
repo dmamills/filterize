@@ -102,6 +102,13 @@ class Filterize {
         this.ctx.putImageData(this.lastSnapshot, 0, 0);
     }
 
+    setBaseImage(imgEl) {
+        this.imgEl = imgEl;
+        this.canvas.width = this.imgEl.width;
+        this.canvas.height = this.imgEl.height;
+        this.reset();
+    }
+
     getCanvas() {
         return this.canvas;
     }

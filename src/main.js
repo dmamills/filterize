@@ -4,6 +4,8 @@ import toolBoxController from 'toolBoxController';
 import filterSelectionController from 'filterSelectionController';
 import fileControlsController from 'fileControlsController';
 import fileUploaderController from 'fileUploaderController';
+import timelinePreviewController from 'timelinePreviewController';
+import timelineControlsController from 'timelineControlsController';
 
 import filterService from 'filterService';
 
@@ -16,6 +18,8 @@ angular.module('filterize', [])
 .controller('toolBoxController', toolBoxController)
 .controller('fileControlsController', fileControlsController)
 .controller('fileUploaderController', fileUploaderController)
+.controller('timelinePreviewController', timelinePreviewController)
+.controller('timelineControlsController', timelineControlsController)
 
 //Services
 .service('filterService', filterService)
@@ -25,7 +29,7 @@ angular.module('filterize', [])
     return {
         restrict: 'E',
         templateUrl: 'tpls/toolBox.tpl.html',
-        controller: 'toolBoxController'       
+        controller: 'toolBoxController'
     }
 })
 .directive('filterSelection', () => {
@@ -39,14 +43,28 @@ angular.module('filterize', [])
     return {
         restrict: 'E',
         templateUrl: 'tpls/fileControls.tpl.html',
-        controller: 'fileControlsController'       
+        controller: 'fileControlsController'
     }
 })
 .directive('fileUploader', () => {
     return {
         restrict: 'E',
         templateUrl: 'tpls/fileUploader.tpl.html',
-        controller: 'fileUploaderController'       
+        controller: 'fileUploaderController'
+    }
+})
+.directive('timelinePreview', () => {
+    return {
+        restrict: 'E',
+        templateUrl: 'tpls/timelinePreview.tpl.html',
+        controller: 'timelinePreviewController'
+    }
+})
+.directive('timelineControls', () => {
+    return {
+        restrict: 'E',
+        templateUrl: 'tpls/timelineControls.tpl.html',
+        controller: 'timelineControlsController'
     }
 })
 
@@ -63,13 +81,13 @@ angular.module('filterize', [])
     }
 
     $rootScope.onUpload = (filepath) => {
-        //TODO: fix this don't create a new filterize object, just replace the base img
-        // and reset everything inside the object. Filterize should be a singleton
         img.src = '/' + filepath;
-        $rootScope.filterize = new Filterize(img, pre, post, 20);
-        var canvasHolder = document.getElementById('putCanvasHere');
-        canvasHolder.innerHTML = '';
-        canvasHolder.appendChild($rootScope.filterize.getCanvas());
+
+        img.onload = function() {
+            $rootScope.$apply(function(){
+                $rootScope.filterize.setBaseImage(img);
+            });
+        }
     }
 
     let post = (imgData, drawFn) => {
@@ -77,7 +95,10 @@ angular.module('filterize', [])
         drawFn(new ImageData(data,imgData.width, imgData.height));
     }
 
+    //create the filterize object
     $rootScope.filterize = new Filterize(img, pre, post, 20);
+
+    //lol probably not "the angular way"
     document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());
 });
 
