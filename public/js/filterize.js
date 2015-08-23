@@ -153,9 +153,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.lastSnapshot = this.takeSnapshot();
                 var f = 0;
                 this.loopInterval = setInterval((function () {
-                    this.ctx.putImageData(frames[f++], 0, 0);
+                    this.ctx.putImageData(frames[f++].data, 0, 0);
                     if (f > frames.length - 1) f = 0;
-                }).bind(this), time);
+                }).bind(this), frames[0].duration);
             }
         }, {
             key: 'stopLoop',
@@ -236,6 +236,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var fileControlsController__fileControlsController = function fileControlsController__fileControlsController($scope, $rootScope, API_URL) {
 
         var filterize = $rootScope.filterize;
+        var jsonHeaders = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
 
         $scope.onReset = function () {
             filterize.reset();
@@ -243,6 +247,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         $scope.onUndo = function () {
             filterize.undo();
+        };
+
+        $scope.toGif = function () {
+            var frames = $rootScope.frames;
+            var data = frames.map(function (f) {
+                return f.toJson();
+            });
+
+            fetch(API_URL + '/gif', {
+                method: 'post',
+                headers: jsonHeaders,
+                body: JSON.stringify({
+                    frames: data
+                })
+            }).then(function (res) {
+                return res.json();
+            }).then(function (data) {}, function (err) {});
         };
 
         $scope.onSave = function () {
@@ -253,10 +274,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             fetch(API_URL + '/save', {
                 method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
+                headers: jsonHeaders,
                 body: JSON.stringify({
                     data: data
                 })
@@ -295,21 +313,148 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var fileUploaderController__default = fileUploaderController__fileUploaderController;
 
-    var timelinePreviewController__timelineController = function timelinePreviewController__timelineController($scope, filterService) {
-        console.log('ayy');
+    var timelinePreviewController__timelineController = function timelinePreviewController__timelineController($scope, $rootScope) {
+        $scope.frames = $rootScope.frames;
     };
 
     var timelinePreviewController = timelinePreviewController__timelineController;
 
-    var timelineControlsController__timelineControlsController = function timelineControlsController__timelineControlsController($scope, filterService) {
-        console.log('ayy');
+    var Frame = (function () {
+        function Frame(data, duration) {
+            _classCallCheck(this, Frame);
+
+            this.data = data;
+            this.duration = duration;
+        }
+
+        _createClass(Frame, [{
+            key: 'toJson',
+            value: function toJson() {
+                var c = document.createElement('canvas');
+                var ctx = c.getContext('2d');
+                ctx.putImageData(this.data, 0, 0);
+                ctx.drawImage(ctx.canvas, 0, 0, c.width, c.height);
+
+                return {
+                    data: c.toDataURL(),
+                    duration: this.duration
+                };
+            }
+        }]);
+
+        return Frame;
+    })();
+
+    var timelineControlsController__timelineControlsController = function timelineControlsController__timelineControlsController($scope, $rootScope) {
+
+        $scope.frames = $rootScope.frames;
+        $scope.interval = 100;
+        $scope.isPlaying = false;
+
+        $scope.add = function () {
+            console.log('hello?');
+            var f = $rootScope.filterize;
+            var interval = $scope.interval;
+            var frame = new Frame(f.takeSnapshot(), interval);
+            $scope.frames.push(frame);
+        };
+
+        $scope.loop = function () {
+            var f = $rootScope.filterize;
+            if (!$scope.isPlaying) {
+                f.loopFrames($scope.frames);
+            } else {
+                f.stopLoop();
+            }
+
+            $scope.isPlaying = !$scope.isPlaying;
+        };
     };
 
     var timelineControlsController__default = timelineControlsController__timelineControlsController;
 
+    var previewFrameController__previewFrameController = function previewFrameController__previewFrameController($scope) {
+
+        var c = document.createElement('canvas');
+        var c2 = document.createElement('canvas');
+        c.width = $scope.frame.data.width;
+        c.height = $scope.frame.data.height;
+
+        var ctx = c.getContext('2d');
+        ctx.putImageData($scope.frame.data, 0, 0);
+        ctx.drawImage(ctx.canvas, 0, 0, 0.3 * c.width, 0.3 * c.height);
+
+        $scope.preview = c.toDataURL();
+    };
+
+    var previewFrameController__default = previewFrameController__previewFrameController;
+
     var _filterService__filterService = function _filterService__filterService() {
 
+        var sharpen = function sharpen(data) {
+            var weights = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+
+            var result = convolute(data, weights);
+            return result;
+        };
+
+        var blur = function blur(data) {
+            var weights = [1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9];
+
+            return convolute(data, weights);
+        };
+
+        var convolute = function convolute(pixels, weights, opaque) {
+
+            var side = Math.round(Math.sqrt(weights.length));
+            var halfSide = Math.floor(side / 2);
+            var src = pixels.data;
+            var sw = pixels.width;
+            var sh = pixels.height;
+
+            // pad output by the convolution matrix
+            var w = sw;
+            var h = sh;
+            var output = document.createElement('canvas').getContext('2d').createImageData(w, h);
+            var dst = output.data;
+            // go through the destination image pixels
+            var alphaFac = opaque ? 1 : 0;
+            for (var y = 0; y < h; y++) {
+                for (var x = 0; x < w; x++) {
+                    var sy = y;
+                    var sx = x;
+                    var dstOff = (y * w + x) * 4;
+                    // calculate the weighed sum of the source image pixels that
+                    // fall under the convolution matrix
+                    var r = 0,
+                        g = 0,
+                        b = 0,
+                        a = 0;
+                    for (var cy = 0; cy < side; cy++) {
+                        for (var cx = 0; cx < side; cx++) {
+                            var scy = sy + cy - halfSide;
+                            var scx = sx + cx - halfSide;
+                            if (scy >= 0 && scy < sh && scx >= 0 && scx < sw) {
+                                var srcOff = (scy * sw + scx) * 4;
+                                var wt = weights[cy * side + cx];
+                                r += src[srcOff] * wt;
+                                g += src[srcOff + 1] * wt;
+                                b += src[srcOff + 2] * wt;
+                                a += src[srcOff + 3] * wt;
+                            }
+                        }
+                    }
+                    dst[dstOff] = r;
+                    dst[dstOff + 1] = g;
+                    dst[dstOff + 2] = b;
+                    dst[dstOff + 3] = a + alphaFac * (255 - a);
+                }
+            }
+            return output;
+        };
+
         var grayscaleFilter = new Filter('grayscale', function (data) {
+            data = data.data;
             for (var i = 0; i < data.length; i += 4) {
                 var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
                 data[i] = avg;
@@ -322,6 +467,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var createAlterFilter = function createAlterFilter(threshold) {
             return function (data) {
+                data = data.data;
                 for (var i = 0; i < data.length; i += 4) {
                     data[i] = data[i] + data[i] * threshold;
                     data[i + 1] = data[i + 1] + data[i + 1] * threshold;
@@ -337,6 +483,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var createColorFilter = function createColorFilter(n) {
             return function (data) {
+                data = data.data;
                 for (var i = 0; i < data.length; i += 4) {
                     data[i + n] = data[i + n] << 2 <= 255 ? data[i + n] << 2 : 255;
                 }
@@ -350,18 +497,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var brightenFilter = new Filter('brighten', createAlterFilter(0.1));
         var darkenFilter = new Filter('darken', createAlterFilter(-0.05));
+        var sharpenFilter = new Filter('shapen', sharpen);
+        var blurFilter = new Filter('blur', blur);
 
-        return [grayscaleFilter, redFilter, greenFilter, blueFilter, brightenFilter, darkenFilter];
+        return [grayscaleFilter, redFilter, greenFilter, blueFilter, brightenFilter, darkenFilter, sharpenFilter, blurFilter];
     };
 
     var _filterService = _filterService__filterService;
 
-    window.Filterize = Filterize;
-
     angular.module('filterize', [])
 
     //Controllers
-    .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default).controller('timelinePreviewController', timelinePreviewController).controller('timelineControlsController', timelineControlsController__default)
+    .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default).controller('timelinePreviewController', timelinePreviewController).controller('timelineControlsController', timelineControlsController__default).controller('previewFrameController', previewFrameController__default)
 
     //Services
     .service('filterService', _filterService)
@@ -403,6 +550,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             templateUrl: 'tpls/timelineControls.tpl.html',
             controller: 'timelineControlsController'
         };
+    }).directive('previewFrame', function () {
+        return {
+            restrict: 'E',
+            scope: {
+                frame: '='
+            },
+            templateUrl: 'tpls/previewFrame.tpl.html',
+            controller: 'previewFrameController'
+        };
+    }).filter('intervalSpeed', function () {
+        return function (input) {
+            if (!input) return '';
+            return (input / 1000).toFixed('1') + 's';
+        };
     })
 
     //environment variables
@@ -413,7 +574,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var img = document.getElementById('replaceMe');
         $rootScope.selectedFilter = filterService[0];
-        var pre = function pre(imgData, drawFn) {};
 
         $rootScope.onUpload = function (filepath) {
             img.src = '/' + filepath;
@@ -425,13 +585,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             };
         };
 
+        var pre = function pre(imgData, drawFn) {};
+
         var post = function post(imgData, drawFn) {
-            var data = $rootScope.selectedFilter.fn(imgData.data);
+            var data = $rootScope.selectedFilter.fn(imgData);
+
+            if (data.data) {
+                data = data.data;
+            }
+
             drawFn(new ImageData(data, imgData.width, imgData.height));
         };
 
         //create the filterize object
         $rootScope.filterize = new Filterize(img, pre, post, 20);
+        $rootScope.frames = [];
 
         //lol probably not "the angular way"
         document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());

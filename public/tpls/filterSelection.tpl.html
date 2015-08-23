@@ -4,7 +4,7 @@
         <button ng-class="{'button-primary': filter.selected}" ng-click="select(filter)">{{::filter.name}}</button>
     </li>
        <label for="brush">set brush size</label>
-       <input type="range" min="5" max="250" ng-model="brushSize" step="5" id="brush"/>
+       <input type="range" min="5" max="1000" ng-model="brushSize" step="10" id="brush"/>
        <span ng-bind="brushSize"></span>
     </li>
 </ul>

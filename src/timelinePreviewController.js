@@ -1,5 +1,5 @@
-let timelineController = ($scope, filterService) => {
-    console.log('ayy');
+let timelineController = ($scope, $rootScope) => {
+    $scope.frames = $rootScope.frames;
 };
 
 export default timelineController;

@@ -1,6 +1,5 @@
 let fileUploaderController = ($scope, $rootScope) => {
 
-
     let onUpload = (data) => {
         $rootScope.onUpload(data.filepath);
     };

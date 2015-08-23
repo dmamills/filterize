@@ -34,7 +34,10 @@ header {
 .timeline-container {
   background-color: #962d22;
   color: #FFF;
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
-  min-height: 200px; }
+  display: flex; }
+  .timeline-container .timeline-preview {
+    border: 1px solid black;
+    flex-grow: 2; }
+  .timeline-container .timeline-controls {
+    border: 1px solid black;
+    flex-grow: 2; }

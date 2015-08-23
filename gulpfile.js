@@ -111,6 +111,10 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
       .pipe($.plumber())
       .pipe($.sourcemaps.init({ loadMaps: true }))
       .pipe($.babel())
+      .on('error', function(e) {
+            console.log(e);
+            this.emit('end');
+        })
       .pipe($.sourcemaps.write('./'))
       .pipe(gulp.dest(destinationFolder))
       .pipe(gulp.dest('./public/js'))
@@ -122,7 +126,11 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
       .pipe(gulp.dest(destinationFolder))
       .on('end', done);
   })
-  .catch(done);
+  .catch(function(e) {
+        console.log('an error');
+        console.log(e);
+        done();
+    });
 });
 
 function bundle(bundler) {

@@ -6,10 +6,9 @@ import fileControlsController from 'fileControlsController';
 import fileUploaderController from 'fileUploaderController';
 import timelinePreviewController from 'timelinePreviewController';
 import timelineControlsController from 'timelineControlsController';
+import previewFrameController from 'previewFrameController';
 
 import filterService from 'filterService';
-
-window.Filterize = Filterize;
 
 angular.module('filterize', [])
 
@@ -20,6 +19,7 @@ angular.module('filterize', [])
 .controller('fileUploaderController', fileUploaderController)
 .controller('timelinePreviewController', timelinePreviewController)
 .controller('timelineControlsController', timelineControlsController)
+.controller('previewFrameController', previewFrameController)
 
 //Services
 .service('filterService', filterService)
@@ -67,6 +67,22 @@ angular.module('filterize', [])
         controller: 'timelineControlsController'
     }
 })
+.directive('previewFrame', () => {
+    return {
+        restrict: 'E',
+        scope: {
+            frame: '='
+        },
+        templateUrl: 'tpls/previewFrame.tpl.html',
+        controller: 'previewFrameController'
+    }
+})
+.filter('intervalSpeed', () => {
+    return input => {
+        if(!input) return '';
+        return (input / 1000).toFixed('1') + 's';
+    };
+})
 
 //environment variables
 .constant('API_URL', 'http://localhost:8000')
@@ -76,9 +92,6 @@ angular.module('filterize', [])
 
     let img = document.getElementById('replaceMe');
     $rootScope.selectedFilter = filterService[0];
-    let pre = (imgData, drawFn) => {
-
-    }
 
     $rootScope.onUpload = (filepath) => {
         img.src = '/' + filepath;
@@ -90,13 +103,23 @@ angular.module('filterize', [])
         }
     }
 
+    let pre = (imgData, drawFn) => {
+
+    }
+
     let post = (imgData, drawFn) => {
-        var data = $rootScope.selectedFilter.fn(imgData.data);
+        var data = $rootScope.selectedFilter.fn(imgData);
+
+        if(data.data) {
+            data = data.data;
+        }
+
         drawFn(new ImageData(data,imgData.width, imgData.height));
     }
 
     //create the filterize object
     $rootScope.filterize = new Filterize(img, pre, post, 20);
+    $rootScope.frames = [];
 
     //lol probably not "the angular way"
     document.getElementById('putCanvasHere').appendChild($rootScope.filterize.getCanvas());

@@ -47,6 +47,16 @@ app.get('/download/:id', function(req,res) {
     res.download(file);
 });
 
+app.post('/gif', function(req,res) {
+    var frames = req.body.frames;
+    console.log('got a request for ' + frames.length + ' frames.');
+    var id = uuid.v4();
+    res.json({
+        'id': id,
+        'frames': frames.length
+    });
+});
+
 app.post('/upload', multipartMiddleware, function(req,res) {
     var photo = req.files.photo;
     console.log(photo);

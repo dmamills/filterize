@@ -56,6 +56,8 @@ class Filterize {
         let drawFn = this.createDrawFn(e);
         this.postFilter(tempData, drawFn);
     }
+    
+
     takeSnapshot() {
         let w = this.imgEl.width;
         let h = this.imgEl.height;
@@ -93,9 +95,9 @@ class Filterize {
         this.lastSnapshot = this.takeSnapshot();
         var f = 0;
         this.loopInterval = setInterval((function() {
-            this.ctx.putImageData(frames[f++], 0, 0);
+            this.ctx.putImageData(frames[f++].data, 0, 0);
             if(f > frames.length - 1) f = 0;
-        }).bind(this), time);
+        }).bind(this), frames[0].duration);
     }
     stopLoop() {
         clearInterval(this.loopInterval);

@@ -41,11 +41,22 @@ header {
 .timeline-container {
     background-color: darken($pomegranate, 10%);
     color: $white;
-    position: absolute;
-    bottom: 0px;
-    width:100%;
-    min-height:200px;
+    display: flex;
+
+    .timeline-preview {
+        border: 1px solid black;
+        flex-grow: 2;
+
+    }   
+
+    .timeline-controls {
+        border: 1px solid black;
+        flex-grow: 2;
+
+    }   
+
 }
+
 
 
 
