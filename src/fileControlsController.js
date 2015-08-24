@@ -32,7 +32,11 @@ let fileControlsController = ($scope, $rootScope, API_URL) => {
             })
         }).then((res) => { return res.json(); })
         .then(data => {
-
+            console.log(data);
+            $scope.$apply(() =>{
+                $scope.uploadedGif = data.id;
+                $scope.dialogShown = true;
+            })
         }, err => {
 
         });

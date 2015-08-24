@@ -267,7 +267,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 })
             }).then(function (res) {
                 return res.json();
-            }).then(function (data) {}, function (err) {});
+            }).then(function (data) {
+                console.log(data);
+                $scope.$apply(function () {
+                    $scope.uploadedGif = data.id;
+                    $scope.dialogShown = true;
+                });
+            }, function (err) {});
         };
 
         $scope.onSave = function () {
@@ -382,14 +388,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     var previewFrameController__previewFrameController = function previewFrameController__previewFrameController($scope) {
 
         var c = document.createElement('canvas');
-        var c2 = document.createElement('canvas');
         c.width = $scope.frame.data.width;
         c.height = $scope.frame.data.height;
 
         var ctx = c.getContext('2d');
         ctx.putImageData($scope.frame.data, 0, 0);
-        ctx.drawImage(ctx.canvas, 0, 0, 0.3 * c.width, 0.3 * c.height);
-
         $scope.preview = c.toDataURL();
     };
 
@@ -411,7 +414,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         };
 
         var danielSpecial = function danielSpecial(data) {
-            var weights = [1, 1, 1, 1, 0.7, 1, -1, -1, -1];
+            var weights = [1, 1, 1, -1, 0.7, 1, -1, -1, -1];
 
             return convolute(data, weights);
         };
@@ -518,7 +521,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var _filterService = _filterService__filterService;
 
-    angular.module('filterize', [])
+    angular.module('filterize', ['ngModal'])
 
     //Controllers
     .controller('filterSelectionController', filterSelectionController__default).controller('toolBoxController', toolBoxController__default).controller('fileControlsController', fileControlsController__default).controller('fileUploaderController', fileUploaderController__default).controller('timelinePreviewController', timelinePreviewController).controller('timelineControlsController', timelineControlsController__default).controller('previewFrameController', previewFrameController__default)

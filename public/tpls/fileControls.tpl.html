@@ -6,3 +6,8 @@
   <li><button ng-click="toGif()" >save as gif</button></li>
 </ul>
 
+<modal-dialog show='dialogShown' dialog-title='Uploaded GIF'>
+    <img ng-src="/gif/{{uploadedGif}}.gif"/>
+    <br/>
+    <a ng-href="/gif/{{uploadedGif}}">Download Link</a>
+</modal-dialog>

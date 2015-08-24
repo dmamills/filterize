@@ -46,7 +46,6 @@ header {
     .timeline-preview {
         border: 1px solid black;
         flex-grow: 2;
-
     }   
 
     .timeline-controls {
@@ -55,6 +54,10 @@ header {
 
     }   
 
+}
+
+.frame-container {
+    display:inline-flex;
 }
 
 

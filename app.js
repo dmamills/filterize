@@ -61,7 +61,7 @@ app.post('/gif', function(req,res) {
     var id = uuid.v4();
     var filename = id + '.gif';
     var path = __dirname + '/public/gif/' + filename;
-    logger.info('Uploading gif of ' + frames.length + ' id: ' + id);
+    logger.info('Uploading gif of ' + frames.length + ' frames id: ' + id);
 
     async.each(frames, function(frame, cb) {
         var base64Data = frame.data.replace(/^data:image\/png;base64,/, "");

@@ -10,7 +10,7 @@ import previewFrameController from 'previewFrameController';
 
 import filterService from 'filterService';
 
-angular.module('filterize', [])
+angular.module('filterize', ['ngModal'])
 
 //Controllers
 .controller('filterSelectionController', filterSelectionController)

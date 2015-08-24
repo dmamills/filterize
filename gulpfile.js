@@ -33,8 +33,8 @@ function concatPath(root) {
 
 var vendor_files = [
     'fetch/fetch.js',
-    'angular/angular.js'
-
+    'angular/angular.js',
+    'ngModal/dist/ng-modal.js'
 ].map(concatPath('./app/bower_components/')); 
 
 var SASS_ENTRY_FILE = './sass/main.scss';
@@ -43,7 +43,6 @@ gulp.task('compile-sass', function() {
     gulp.src(SASS_ENTRY_FILE)
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest('./public/css'));
-
 });
 
 
@@ -111,10 +110,6 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
       .pipe($.plumber())
       .pipe($.sourcemaps.init({ loadMaps: true }))
       .pipe($.babel())
-      .on('error', function(e) {
-            console.log(e);
-            this.emit('end');
-        })
       .pipe($.sourcemaps.write('./'))
       .pipe(gulp.dest(destinationFolder))
       .pipe(gulp.dest('./public/js'))

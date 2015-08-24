@@ -21,7 +21,7 @@ let filterService = () => {
 
     let danielSpecial = (data) => {
         let weights = [ 1, 1, 1,
-                        1, 0.7, 1,
+                        -1, 0.7, 1,
                         -1, -1, -1 ];
 
         return convolute(data, weights);
