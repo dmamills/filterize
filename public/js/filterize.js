@@ -325,6 +325,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     var timelinePreviewController__timelineController = function timelinePreviewController__timelineController($scope, $rootScope) {
         $scope.frames = $rootScope.frames;
+
+        $scope.remove = function (frame) {
+            var idx = $scope.frames.indexOf(frames);
+            $scope.frames.splice(idx - 1, 1);
+        };
     };
 
     var timelinePreviewController = timelinePreviewController__timelineController;
@@ -364,7 +369,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         $scope.isPlaying = false;
 
         $scope.add = function () {
-            console.log('hello?');
             var f = $rootScope.filterize;
             var interval = $scope.interval;
             var frame = new Frame(f.takeSnapshot(), interval);

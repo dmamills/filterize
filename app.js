@@ -83,6 +83,7 @@ app.post('/gif', function(req,res) {
         };
 
         cmd += path;
+        // logger.info('cmd: ' + cmd);
         
         exec(cmd, function(err, stdout,stderr) {
             if(err) throw err;

@@ -7,7 +7,6 @@ let timelineControlsController = ($scope,$rootScope) => {
     $scope.isPlaying = false;
     
     $scope.add = function() {
-        console.log('hello?');
         let f = $rootScope.filterize;
         let interval = $scope.interval;
         let frame = new Frame(f.takeSnapshot(), interval);
