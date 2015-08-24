@@ -3,6 +3,8 @@ var multipart = require('connect-multiparty');
 var uuid = require('node-uuid');
 var fs = require('fs');
 var bodyParser = require('body-parser');
+var async = require('async');
+var exec = require('child_process').exec; 
 
 var logger = require('./logger');
 
@@ -47,21 +49,59 @@ app.get('/download/:id', function(req,res) {
     res.download(file);
 });
 
+app.get('/gif/:id', function(req,res) {
+    var file = __dirname + '/public/gif/' + req.params.id + '.gif';
+    res.download(file);
+});
+
 app.post('/gif', function(req,res) {
     var frames = req.body.frames;
-    console.log('got a request for ' + frames.length + ' frames.');
+    var w = req.body.width;
+    var h = req.body.height;
     var id = uuid.v4();
-    res.json({
-        'id': id,
-        'frames': frames.length
+    var filename = id + '.gif';
+    var path = __dirname + '/public/gif/' + filename;
+    logger.info('Uploading gif of ' + frames.length + ' id: ' + id);
+
+    async.each(frames, function(frame, cb) {
+        var base64Data = frame.data.replace(/^data:image\/png;base64,/, "");
+        var ffn = id.toString() + '-' + frames.indexOf(frame) + '.png';
+
+        fs.writeFile(__dirname + '/public/gt/' + ffn, base64Data, 'base64', function(err) {
+            if(err) cb(err);
+            cb();
+        })
+    }, function(err) {
+        if(err) throw err;
+        logger.info('Finished writing frames for ' + id);
+
+        var cmd = 'convert ';
+
+        for(var i=0; i < frames.length;i++) {
+            var ffn = id.toString() + '-' + i + '.png';
+            cmd += '-delay ' + (frames[i].duration / 10) + ' ' + __dirname + '/public/gt/' + ffn + ' ';
+        };
+
+        cmd += path;
+        
+        exec(cmd, function(err, stdout,stderr) {
+            if(err) throw err;
+            logger.info('Finished creating gif for ' + id);
+            res.json({
+                'id': id,
+                'frames': frames.length
+            });
+
+        });
+
     });
 });
 
 app.post('/upload', multipartMiddleware, function(req,res) {
     var photo = req.files.photo;
-    console.log(photo);
+    logger.info('uploading photo');
     res.json({'result': 'okay', 'filepath': photo.path.split('/public/')[1]});
 });
 
 app.listen(8000);
-console.log('glitchery server listening on 8000');
+logger.info('GLITCHERY server listening on 8000');

@@ -19,6 +19,13 @@ let filterService = () => {
         return convolute(data, weights);
     }
 
+    let danielSpecial = (data) => {
+        let weights = [ 1, 1, 1,
+                        1, 0.7, 1,
+                        -1, -1, -1 ];
+
+        return convolute(data, weights);
+    }
 
     let convolute = (pixels, weights, opaque) => {
 
@@ -114,6 +121,7 @@ let filterService = () => {
     let darkenFilter = new Filter('darken', createAlterFilter(-0.05));
     let sharpenFilter = new Filter('shapen', sharpen);
     let blurFilter = new Filter('blur', blur);
+    let danielFilter = new Filter('danielSpecial', danielSpecial);
 
 
     return [
@@ -125,6 +133,7 @@ let filterService = () => {
         darkenFilter,
         sharpenFilter,
         blurFilter,
+        danielFilter,
     ];
 
 }

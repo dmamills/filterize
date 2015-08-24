@@ -7,6 +7,8 @@ class Frame {
 
     toJson() {
         let c = document.createElement('canvas');
+        c.width = this.data.width;
+        c.height = this.data.height;
         let ctx = c.getContext('2d');
         ctx.putImageData(this.data, 0, 0);
         ctx.drawImage(ctx.canvas, 0, 0, c.width, c.height);

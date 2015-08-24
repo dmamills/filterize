@@ -255,11 +255,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return f.toJson();
             });
 
+            var width = filterize.getCanvas().width;
+            var height = filterize.getCanvas().height;
             fetch(API_URL + '/gif', {
                 method: 'post',
                 headers: jsonHeaders,
                 body: JSON.stringify({
-                    frames: data
+                    frames: data,
+                    width: width,
+                    height: height
                 })
             }).then(function (res) {
                 return res.json();
@@ -331,6 +335,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'toJson',
             value: function toJson() {
                 var c = document.createElement('canvas');
+                c.width = this.data.width;
+                c.height = this.data.height;
                 var ctx = c.getContext('2d');
                 ctx.putImageData(this.data, 0, 0);
                 ctx.drawImage(ctx.canvas, 0, 0, c.width, c.height);
@@ -400,6 +406,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         var blur = function blur(data) {
             var weights = [1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9];
+
+            return convolute(data, weights);
+        };
+
+        var danielSpecial = function danielSpecial(data) {
+            var weights = [1, 1, 1, 1, 0.7, 1, -1, -1, -1];
 
             return convolute(data, weights);
         };
@@ -499,8 +511,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var darkenFilter = new Filter('darken', createAlterFilter(-0.05));
         var sharpenFilter = new Filter('shapen', sharpen);
         var blurFilter = new Filter('blur', blur);
+        var danielFilter = new Filter('danielSpecial', danielSpecial);
 
-        return [grayscaleFilter, redFilter, greenFilter, blueFilter, brightenFilter, darkenFilter, sharpenFilter, blurFilter];
+        return [grayscaleFilter, redFilter, greenFilter, blueFilter, brightenFilter, darkenFilter, sharpenFilter, blurFilter, danielFilter];
     };
 
     var _filterService = _filterService__filterService;

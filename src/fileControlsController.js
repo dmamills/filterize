@@ -20,11 +20,15 @@ let fileControlsController = ($scope, $rootScope, API_URL) => {
             return f.toJson();
         });
 
+        let width = filterize.getCanvas().width;
+        let height = filterize.getCanvas().height;
         fetch(`${API_URL}/gif`, {
             method: 'post',
             headers: jsonHeaders,
             body: JSON.stringify({
-                frames: data
+                frames: data,
+                width: width,
+                height: height
             })
         }).then((res) => { return res.json(); })
         .then(data => {
